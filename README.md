@@ -1,4 +1,7 @@
-##Completely Fair Scheduler (CFS) - Conceptual Overview
+###Completely Fair Scheduler (CFS) - Conceptual Overview
+
+
+
 1. The Philosophy of "Fairness"
 The Completely Fair Scheduler (CFS), introduced in the Linux kernel in 2007, is built on a simple but powerful idea: the ideal, perfectly fair multi-tasking CPU would be an ideal multi-core processor with an infinite number of cores. On such a machine, every runnable process could run simultaneously, each getting an equal share of the total processing power.
 
