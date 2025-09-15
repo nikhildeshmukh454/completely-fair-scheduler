@@ -1,13 +1,13 @@
-###Completely Fair Scheduler (CFS) - Conceptual Overview
+### Completely Fair Scheduler (CFS) - Conceptual Overview
 
 
 
-1. The Philosophy of "Fairness"
+**1. The Philosophy of "Fairness"**
 The Completely Fair Scheduler (CFS), introduced in the Linux kernel in 2007, is built on a simple but powerful idea: the ideal, perfectly fair multi-tasking CPU would be an ideal multi-core processor with an infinite number of cores. On such a machine, every runnable process could run simultaneously, each getting an equal share of the total processing power.
 
 Since we don't have infinite cores, the goal of CFS is to approximate this ideal fairness in time. It aims to divide the CPU time between all runnable processes so that over a given period, each process receives a share of runtime proportional to its priority.
 
-2. Key Mechanism: Virtual Runtime (vruntime)
+**2. Key Mechanism: Virtual Runtime (vruntime)**
 The magic ingredient that makes this work is called Virtual Runtime (vruntime).
 
 Each task (process/thread) has its own vruntime value.
@@ -18,7 +18,7 @@ Crucially, the rate at which vruntime increases is weighted by the task's priori
 
 The Core Rule of CFS: The task with the smallest vruntime is considered the most "deserving" of CPU time, as it has had the least share of the processor (adjusted for its priority) relative to others.
 
-3. The Scheduling Algorithm
+**3. The Scheduling Algorithm**
 CFS's operation can be summarized in a continuous loop:
 
 Pick Next Task: The scheduler must quickly find the task with the smallest vruntime from all runnable tasks.
@@ -33,8 +33,9 @@ Repeat: The scheduler goes back to step 1.
 
 The performance of this entire system hinges on the efficiency of the data structure used in steps 1 and 4. This is where the Red-Black Tree comes in.
 
-The Role of the Red-Black Tree
-1. Why a Tree? Why Red-Black?
+### The Role of the Red-Black Tree
+
+**1. Why a Tree? Why Red-Black?**
 CFS needs a data structure that can handle three operations incredibly efficiently, as they are performed constantly:
 
 Insertion: Adding a task that becomes runnable (e.g., after waking from sleep).
@@ -47,14 +48,14 @@ A self-balancing binary search tree (BST) is the perfect candidate. In a BST, th
 
 The Red-Black Tree is the specific type of self-balancing BST chosen for the Linux kernel's implementation due to its efficiency and relatively low overhead for insertions and deletions.
 
-2. How CFS Uses the Red-Black Tree
+**2. How CFS Uses the Red-Black Tree**
 The Key: The vruntime of a task is used as the key for ordering nodes within the tree.
 
 The Leftmost Node: The task stored in the leftmost node of the tree is, by definition, the one with the smallest vruntime. CFS can access this node in O(1) time by caching its location. This makes the "pick next task" operation extremely fast.
 
 Maintaining Balance: Whenever a task is inserted or removed (e.g., a task finishes a CPU burst and is re-inserted with its new, larger vruntime), the Red-Black Tree algorithm performs a series of rotations and node re-colorings to ensure the tree remains approximately balanced. This guarantees that the tree's height remains logarithmic (O(log n)), preserving the efficiency of all operations.
 
-3. The "CFS Runqueue"
+**3. The "CFS Runqueue"**
 The Red-Black Tree is the centerpiece of what is known as the CFS runqueue. It doesn't queue tasks in a traditional first-in-first-out (FIFO) list. Instead, it maintains them in this sorted tree structure, ensuring that the scheduler's view of the "most deserving" task is always instantly available.
 
 Analogy: A Always-Sorted List
